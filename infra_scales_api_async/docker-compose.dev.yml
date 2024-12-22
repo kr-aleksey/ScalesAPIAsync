@@ -1,0 +1,55 @@
+services:
+  api-local:
+    build: ../api
+    container_name: scales-api-local
+    restart: unless-stopped
+    volumes:
+      - ./settings.toml:/app/settings.toml
+      - ./logs:/app/logs
+    profiles: [local]
+#    devices:
+#      - "/dev/ttyUSB0:/dev/ttyUSB0"
+    env_file:
+      - .env
+
+  frontend-local:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: scales-frontend-local
+    volumes:
+      - frontend:/app/result_build/build/
+    profiles: [local]
+
+  nginx-local:
+    image: nginx:1.25.1
+    container_name: scales-nginx-local
+    restart: unless-stopped
+    ports:
+      - "8081:8001"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - frontend:/usr/share/nginx/html/
+    depends_on:
+      - api-local
+    profiles: [local]
+
+  api-dockerhub:
+    image: kraleksey/scales_api_async:latest
+    container_name: scales-api
+    restart: unless-stopped
+    volumes:
+      - ./settings.toml:/app/settings.toml
+      - ./logs:/app/logs
+    ports:
+      - "8080:8000"
+    profiles: [dockerhub]
+    env_file:
+      - .env
+
+
+#    devices:
+#      - "/dev/ttyUSB0:/dev/ttyUSB0"
+
+volumes:
+  frontend:

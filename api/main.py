@@ -65,7 +65,8 @@ err_responses = {
 app = FastAPI(title='ScalesAPIAsync',
               debug=settings.DEBUG,
               docs_url='/api/docs',
-              redoc_url='/api/redoc')
+              redoc_url='/api/redoc',
+              redirect_slashes=True)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
